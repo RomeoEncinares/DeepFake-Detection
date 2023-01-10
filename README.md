@@ -29,7 +29,7 @@ A project that involves using deep learning technologies such as Recurrent Neura
 
 4. Open Anaconda Navigator / Anaconda Prompt to create a conda environment. Use the appropriate Python version, Tensorflow version, cuDNN, and CUDA according to your hardware. Refer to the [Tensorflow](https://www.tensorflow.org/install/source_windows) documentations.
 
-5. Open the environmen through terminal.
+5. Open the environment through terminal.
 
 6. Install the dependencies
 
