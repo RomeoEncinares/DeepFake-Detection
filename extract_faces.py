@@ -115,18 +115,18 @@ def align_crop_resize(video_name, filepath, count, image):
         if cstatus:
             cv2.imwrite(filepath + video_name.rsplit('.', 1)[0] + "-" + str(count) + ".jpg", img) # Save frame as JPG file # save the image
 
-def getFrame(source, target_dir, frame_rate, video):
-    video_path = source + video
+def getFrame(source_dir, target_dir, frame_rate, video):
+    video_path = source_dir + video
     print(video_path)
     vidcap = cv2.VideoCapture(video_path)
 
-    def saveFrame(sec, filepath):
+    def saveFrame(sec, target_dir):
         vidcap.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
         hasFrames,image = vidcap.read()
         if hasFrames:
             try:
 #                 print(filepath)
-                align_crop_resize(video, filepath, count, align(image)[1])
+                align_crop_resize(video, target_dir, count, align(image)[1])
             except AttributeError:
                 pass
         return hasFrames
