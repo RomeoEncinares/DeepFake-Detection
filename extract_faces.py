@@ -1,20 +1,10 @@
 import argparse
 import os
 import sys
-import random
-import math
-from pathlib import Path
 
 from mtcnn import MTCNN
-from scipy import ndimage
-
-import pandas as pd
-import cv2
-
 import numpy as np
-import mtcnn
-import matplotlib
-import matplotlib.pyplot as plt
+import cv2
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
@@ -125,7 +115,6 @@ def getFrame(source_dir, target_dir, frame_rate, video):
         hasFrames,image = vidcap.read()
         if hasFrames:
             try:
-#                 print(filepath)
                 align_crop_resize(video, target_dir, count, align(image)[1])
             except AttributeError:
                 pass
