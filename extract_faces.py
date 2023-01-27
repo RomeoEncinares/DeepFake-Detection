@@ -1,21 +1,45 @@
+import argparse
+import os
+import sys
+import random
+import math
+from pathlib import Path
+
 from mtcnn import MTCNN
 from scipy import ndimage
 
 import pandas as pd
 import cv2
-import os
-import sys
-import random
-import math
+
 import numpy as np
 import mtcnn
 import matplotlib
 import matplotlib.pyplot as plt
 
-filepath_source = "dataset/train_sample_videos/"
-filepath_target = "dataset_processed/train/"
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', type=str, help='Videos root directory', required=True)
+    parser.add_argument('--target', type=str, help='Output root directory', required=True)
+    parser.add_argument('--frameRate', type=int, help='Frames per video', default=0.25)
 
-video_list = os.listdir(filepath_source)
+    return parser.parse_args(argv)
+
+def main(argv):
+    args = parse_args(argv)
+    
+    # Parameters parsing
+    # dataset/train_sample_videos/
+    # dataset_processed/train/
+    source_dir = args.source
+    target_dir = args.target
+    frame_rate = args.frameRate
+
+    # Video list index
+    video_list = os.listdir(source_dir)
+
+    # Iterate video list    
+    for video in video_list:
+        getFrame(source_dir, target_dir, frame_rate, video)
 
 def rotate_bound(image, angle):
     #rotates an image by the degree angle
@@ -91,7 +115,7 @@ def align_crop_resize(video_name, filepath, count, image):
         if cstatus:
             cv2.imwrite(filepath + video_name.rsplit('.', 1)[0] + "-" + str(count) + ".jpg", img) # Save frame as JPG file # save the image
 
-def getFrame(source, filepath_target, video):
+def getFrame(source, target_dir, frame_rate, video):
     video_path = source + video
     print(video_path)
     vidcap = cv2.VideoCapture(video_path)
@@ -108,14 +132,14 @@ def getFrame(source, filepath_target, video):
         return hasFrames
         
     sec = 1
-    frameRate = 0.25 # Capture image in each 0.5 second
+    frameRate = frame_rate # Capture image in each x second
     count=1
-    success = saveFrame(sec, filepath_target)
+    success = saveFrame(sec, target_dir)
     while success:
         count = count + 1
         sec = sec + frameRate
         sec = round(sec, 2)
-        success = saveFrame(sec, filepath_target)
+        success = saveFrame(sec, target_dir)
 
-for video in video_list:
-    getFrame(filepath_source, filepath_target, video)
+if __name__ == '__main__':
+    main(sys.argv[1:])
