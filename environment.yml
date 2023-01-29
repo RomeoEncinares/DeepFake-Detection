@@ -141,7 +141,6 @@ dependencies:
     - tensorboard-data-server==0.6.1
     - tensorboard-plugin-wit==1.8.1
     - tensorflow==2.10.0
-    - tensorflow-docs==0.0.0.dev0
     - tensorflow-estimator==2.10.0
     - tensorflow-io-gcs-filesystem==0.29.0
     - termcolor==2.2.0
