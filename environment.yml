@@ -161,4 +161,3 @@ dependencies:
     - werkzeug==2.2.2
     - widgetsnbextension==4.0.5
     - wrapt==1.14.1
-prefix: C:\Users\Jerome\anaconda3\envs\deepfake-detection
