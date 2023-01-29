@@ -4,6 +4,8 @@ import os
 import argparse
 import sys
 
+from sklearn.preprocessing import LabelEncoder
+
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--metadata', type=str, help='JSON metadata directory', required=True)
@@ -19,6 +21,8 @@ def main(argv):
     metadata_dir = args.metadata
     dataset_dir = args.datasetRoot
     dataframe_dir = args.dataframeRoot
+
+    le = LabelEncoder()
 
     # load the JSON file
     # dataset/train_sample_videos/metadata.json
@@ -39,6 +43,7 @@ def main(argv):
                 data.append({'video_name': video_name,'frame_name': frame_name, 'file_path': dataset_dir + frame_name,'label': label, 'split': split})
             
     df = pd.DataFrame(data, columns=['video_name', 'frame_name', 'file_path', 'label', 'split'])
+    df.label = le.fit_transform(df.label)
     df.to_csv(dataframe_dir + 'df.csv')
     # print(dataframe_dir + 'df.csv')
 
