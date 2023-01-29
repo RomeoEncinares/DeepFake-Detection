@@ -36,9 +36,9 @@ def main(argv):
     #     print(video_name.rsplit('.', 1)[0])
         for frame_name in os.listdir(dataset_dir):
             if video_name.rsplit('.', 1)[0] in frame_name:
-                data.append({'video_name': video_name,'frame_name': frame_name, 'label': label, 'split': split})
+                data.append({'video_name': video_name,'frame_name': frame_name, 'file_path': dataset_dir + frame_name,'label': label, 'split': split})
             
-    df = pd.DataFrame(data, columns=['video_name', 'frame_name', 'label', 'split'])
+    df = pd.DataFrame(data, columns=['video_name', 'frame_name', 'file_path', 'label', 'split'])
     df.to_csv(dataframe_dir + 'df.csv')
     # print(dataframe_dir + 'df.csv')
 
