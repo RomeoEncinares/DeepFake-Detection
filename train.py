@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import keras.utils as image
 from tensorflow import keras
+from tensorflow.keras.applications.resnet import preprocess_input
 
 df = pd.read_csv('dataset_processed-Copy/df.csv')
 
@@ -15,7 +16,7 @@ for index, row in df.iterrows():
         # Read the image file
         img = image.load_img(row['file_path'], target_size=(224, 224))
         x = image.img_to_array(img)
-        x = x/255
+        x = preprocess_input(x)
         x_train.append(x)
         y_train.append(row['label'])
 
