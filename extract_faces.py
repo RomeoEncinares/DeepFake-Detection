@@ -12,7 +12,7 @@ def parse_args(argv):
     parser.add_argument('--target', type=str, help='Output root directory', required=True)
     parser.add_argument('--frameRate', type=int, help='Frames per video', default=0.25)
     parser.add_argument('--startVideo', type=str, help='Start extraction on name video')
-    parser.add_argument('--endVideo', type=int, help='End extraction on nth video')
+    parser.add_argument('--endVideo', type=str, help='End extraction on name video')
 
     return parser.parse_args(argv)
 
@@ -37,9 +37,10 @@ def main(argv):
         start_video_index = video_list.index(start_video) + 1
 
     if end_video != None:
-        video_list_count = end_video
+        video_list_count = video_list.index(end_video) + 1
 
     for video in range(start_video_index, video_list_count):
+        # print(video)
         getFrame(source_dir, target_dir, frame_rate, video_list[video])
 
 def rotate_bound(image, angle):
