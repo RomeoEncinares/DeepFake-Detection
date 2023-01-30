@@ -10,7 +10,7 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=str, help='Videos root directory', required=True)
     parser.add_argument('--target', type=str, help='Output root directory', required=True)
-    parser.add_argument('--frameRate', type=int, help='Frames per video', default=0.25)
+    parser.add_argument('--frameRate', type=float, help='Frames per video', default=0.10)
     parser.add_argument('--startVideo', type=str, help='Start extraction on name video')
     parser.add_argument('--endVideo', type=str, help='End extraction on name video')
 
