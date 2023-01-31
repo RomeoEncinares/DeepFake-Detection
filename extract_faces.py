@@ -10,7 +10,7 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=str, help='Videos root directory', required=True)
     parser.add_argument('--target', type=str, help='Output root directory', required=True)
-    parser.add_argument('--frameRate', type=int, help='Frames per video', default=0.25)
+    parser.add_argument('--frameRate', type=float, help='Frames per video', default=0.10)
     parser.add_argument('--startVideo', type=str, help='Start extraction on name video')
     parser.add_argument('--endVideo', type=str, help='End extraction on name video')
 
@@ -34,10 +34,10 @@ def main(argv):
     start_video_index = 0
     
     if start_video != None:
-        start_video_index = video_list.index(start_video) + 1
+        start_video_index = video_list.index(start_video)
 
     if end_video != None:
-        video_list_count = video_list.index(end_video) + 1
+        video_list_count = video_list.index(end_video)
 
     for video in range(start_video_index, video_list_count):
         # print(video)
@@ -132,7 +132,7 @@ def getFrame(source_dir, target_dir, frame_rate, video):
                 pass
         return hasFrames
         
-    sec = 1
+    sec = 0
     frameRate = frame_rate # Capture image in each x second
     count=1
     success = saveFrame(sec, target_dir)
