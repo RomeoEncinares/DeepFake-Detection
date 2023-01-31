@@ -132,7 +132,7 @@ def getFrame(source_dir, target_dir, frame_rate, video):
                 pass
         return hasFrames
         
-    sec = 1
+    sec = 0
     frameRate = frame_rate # Capture image in each x second
     count=1
     success = saveFrame(sec, target_dir)
