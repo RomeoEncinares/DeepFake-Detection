@@ -34,10 +34,10 @@ def main(argv):
     start_video_index = 0
     
     if start_video != None:
-        start_video_index = video_list.index(start_video) + 1
+        start_video_index = video_list.index(start_video)
 
     if end_video != None:
-        video_list_count = video_list.index(end_video) + 1
+        video_list_count = video_list.index(end_video)
 
     for video in range(start_video_index, video_list_count):
         # print(video)
