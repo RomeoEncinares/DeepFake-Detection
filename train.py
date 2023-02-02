@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import keras.utils as image
 from tensorflow import keras
-from tensorflow.keras.applications.resnet import preprocess_input
+from keras.applications.resnet import preprocess_input
+from keras.layers import GlobalAveragePooling2D, Dense
 
 df = pd.read_csv('dataset_processed-Copy/df.csv')
 
@@ -33,19 +34,11 @@ base_model = keras.applications.ResNet50(
 for layer in base_model.layers:
     layer.trainable = False
 
-# Add new fully connected layers for deepfake detection
+# Add a new layer for feature extraction
 x = base_model.output
-x = keras.layers.Flatten()(x)
-x = keras.layers.Dense(1024, activation='relu')(x)
-x = keras.layers.Dropout(0.5)(x)
-x = keras.layers.Dense(1, activation='sigmoid')(x)
-
-# Create the final model
-model = keras.models.Model(inputs=base_model.input, outputs=x)
-
-# Compile the model
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-
-# Train the model
-# model.fit(x_train, y_train, batch_size=32, epochs=10, validation_data=(x_test, y_test))
-model.fit(x_train, y_train, batch_size=32, epochs=10)
+x = GlobalAveragePooling2D()(x)
+x = Dense(1024, activation='relu')(x)
+x = Dense(1024, activation='relu')(x)
+x = Dense(512, activation='relu')(x)
+features = Dense(256, activation='relu')(x)
+feature_extraction_network = keras.models.Model(inputs=base_model.input, outputs=features)
