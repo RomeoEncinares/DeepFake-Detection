@@ -14,6 +14,11 @@ def parse_args(argv):
 
     return parser.parse_args(argv)
 
+def sort_key(filename):
+    video_name = filename.split("-")
+    frame_number = video_name[-1].split(".")[0]
+    return int(frame_number)
+
 def main(argv):
     args = parse_args(argv)
 
@@ -32,13 +37,16 @@ def main(argv):
     # create a list to hold the data for the dataframe
     data = []
 
+    fileFrames = os.listdir(dataset_dir)
+    fileFrames = sorted(fileFrames, key=sort_key)
+
     # loop through the videos and extract the frames
     for video_name, video_info in videos.items():
         label = video_info['label']
         split = video_info['split']
         original = video_info['original']
     #     print(video_name.rsplit('.', 1)[0])
-        for frame_name in os.listdir(dataset_dir):
+        for frame_name in fileFrames:
             if video_name.rsplit('.', 1)[0] in frame_name:
                 data.append({'video_name': video_name,'frame_name': frame_name, 'file_path': dataset_dir + frame_name,'label': label, 'split': split})
             
