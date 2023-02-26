@@ -19,6 +19,11 @@ def parse_args(argv):
 
     return parser.parse_args(argv)
 
+def sort_key_video(filename):
+    id_, num_ext = filename.split(' (')
+    num, _ = num_ext.split(').')
+    return int(num)
+
 def main(argv):
     args = parse_args(argv)
     
@@ -32,7 +37,7 @@ def main(argv):
     end_video = args.endVideo
 
     # Video list index
-    video_list = os.listdir(source_dir)
+    video_list = sorted(os.listdir(source_dir), key=sort_key_video)
     video_list_count = len(video_list)
     start_video_index = 0
     
