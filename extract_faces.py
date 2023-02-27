@@ -48,8 +48,7 @@ def main(argv):
         video_list_count = video_list.index(end_video) + 1
 
     for video in range(start_video_index, video_list_count):
-        print(video_list[video])
-        # getFrame(source_dir, target_dir, frame_rate, video_list[video])
+        getFrame(source_dir, target_dir, frame_rate, video_list[video])
 
 def getFrame(source_dir, target_dir, frame_rate, video):
     video_path = source_dir + video
