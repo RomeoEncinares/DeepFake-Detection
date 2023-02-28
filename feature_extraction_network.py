@@ -65,7 +65,6 @@ def compute_optical_flow(df):
             'frame_name': row['frame_name'],
             'motion_residual': diff,
             'label': row['label'],
-            'split': row['split']
         })
     return pd.DataFrame(flow_data)
 
@@ -78,8 +77,12 @@ def main(argv):
     num_features = args.features
     output_directory = args.outputdirectory
 
-    df = pd.read_csv(df_directory)
-    flow_df = compute_optical_flow(df)
+    if df_flow_directory != None:
+        flow_df = pd.read_csv(df_flow_directory)
+    else:
+        df = pd.read_csv(df_directory)
+        flow_df = compute_optical_flow(df)
+        flow_df.to_csv('flow_df.csv')
 
 if __name__ == '__main__':
     main(sys.argv[1:])
