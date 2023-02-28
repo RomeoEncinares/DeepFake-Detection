@@ -18,8 +18,8 @@ def parse_args(argv):
 def main(argv):
     args = parse_args(argv)
 
-    df = args.dataframe
-    df_flow = args.opticalflow
+    df_directory = args.dataframe
+    df_flow_directory = args.opticalflow
     architecture = args.architecture
     num_features = args.features
     output_directory = args.outputdirectory
