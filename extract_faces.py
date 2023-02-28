@@ -13,7 +13,7 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=str, help='Videos root directory', required=True)
     parser.add_argument('--target', type=str, help='Output root directory', required=True)
-    parser.add_argument('--frameRate', type=float, help='Frames per video', default=0.10)
+    parser.add_argument('--frameRate', type=int, help='Frames per video', default=300)
     parser.add_argument('--startVideo', type=str, help='Start extraction on name video')
     parser.add_argument('--endVideo', type=str, help='End extraction on name video')
 
@@ -48,31 +48,27 @@ def main(argv):
         video_list_count = video_list.index(end_video) + 1
 
     for video in range(start_video_index, video_list_count):
+        print(video_list[video])
         getFrame(source_dir, target_dir, frame_rate, video_list[video])
 
-def getFrame(source_dir, target_dir, frame_rate, video):
-    video_path = source_dir + video
+def getFrame(source_dir, target_dir, frame_count, video):
+    video_path = os.path.join(source_dir, video)
     vidcap = cv2.VideoCapture(video_path)
 
-    def saveFrame(sec, target_dir):
-        vidcap.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
-        hasFrames,image = vidcap.read()
+    def saveFrame(count, target_dir):
+        vidcap.set(cv2.CAP_PROP_POS_FRAMES, count-1)
+        hasFrames, image = vidcap.read()
         if hasFrames:
             try:
                 process(target_dir, video, image, count)
             except AttributeError:
                 pass
         return hasFrames
-        
-    sec = 0
-    frameRate = frame_rate # Capture image in each x second
-    count = 1
-    success = saveFrame(sec, target_dir)
-    while success:
-        count = count + 1
-        sec = sec + frameRate
-        sec = round(sec, 2)
-        success = saveFrame(sec, target_dir)
+
+    for count in range(1, frame_count+1):
+        success = saveFrame(count, target_dir)
+        if not success:
+            break
 
 def process(target_dir, frame_name, frame, count):
     frame_read = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
