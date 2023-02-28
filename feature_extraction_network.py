@@ -1,6 +1,10 @@
 import argparse
 import sys
 
+import cv2
+import pandas as pd
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataframe', type=str, help='csv dataframe', required=True)
@@ -9,7 +13,8 @@ def parse_args(argv):
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the features', required=True)
 
-# flow_df.head()
+    return parser.parse_args(argv)
+
 def main(argv):
     args = parse_args(argv)
 
