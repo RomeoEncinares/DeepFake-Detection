@@ -9,6 +9,7 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataframe', type=str, help='csv dataframe', required=True)
     parser.add_argument('--opticalflow', type=str, help='csv opticalflow dataframe', required=False)
+    parser.add_argument('--opticalflowoutput', type=str, help='csv opticalflow dataframe output', required=False)
     parser.add_argument('--architecture', choices=['resnet50'], help='cnn network architecture', required=True)
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the features', required=True)
@@ -73,6 +74,7 @@ def main(argv):
 
     df_directory = args.dataframe
     df_flow_directory = args.opticalflow
+    df_flow_output_directory = args.opticalflowoutput
     architecture = args.architecture
     num_features = args.features
     output_directory = args.outputdirectory
@@ -80,9 +82,10 @@ def main(argv):
     if df_flow_directory != None:
         flow_df = pd.read_csv(df_flow_directory)
     else:
+        print(False)
         df = pd.read_csv(df_directory)
         flow_df = compute_optical_flow(df)
-        flow_df.to_csv('flow_df.csv')
+        flow_df.to_csv(df_flow_output_directory + 'flow_df.csv')
 
 if __name__ == '__main__':
     main(sys.argv[1:])
