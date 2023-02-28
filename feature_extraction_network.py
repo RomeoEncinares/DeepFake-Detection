@@ -82,7 +82,6 @@ def main(argv):
     if df_flow_directory != None:
         flow_df = pd.read_csv(df_flow_directory)
     else:
-        print(False)
         df = pd.read_csv(df_directory)
         flow_df = compute_optical_flow(df)
         flow_df.to_csv(df_flow_output_directory + 'flow_df.csv')
