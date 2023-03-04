@@ -1,8 +1,15 @@
 import argparse
 import sys
+from statistics import mode
 
 import cv2
+import numpy as np
 import pandas as pd
+import tensorflow as tf
+from keras.applications import ResNet50
+from keras.layers import Dense, GlobalAveragePooling2D, Input
+from keras.models import Model
+from PIL import Image
 
 
 def parse_args(argv):
@@ -68,6 +75,32 @@ def compute_optical_flow(df):
             'label': row['label'],
         })
     return pd.DataFrame(flow_data)
+
+def architecture_resnet50(architecture, input_shape, num_features):
+    # Input layer
+    input_layer = Input(shape=input_shape)
+
+    # Reshape motion_residual to have 3 channels
+    x = tf.keras.backend.stack((input_layer,)*3, axis=-1)
+
+    # Load pre-trained ResNet50 without the final classification layer
+    if architecture == 'resnet50':
+        base_model = ResNet50(include_top=False, input_tensor=x, weights='imagenet')
+
+    # Freeze the weights of the pre-trained layers
+    for layer in base_model.layers:
+        layer.trainable = False
+
+    # Add new classification layers
+    x = GlobalAveragePooling2D()(base_model.output)
+    x = Dense(1024, activation='relu')(x)
+    x = Dense(512, activation='relu')(x)
+    output_layer = Dense(num_features)(x)  # remove activation function
+
+    # Define the model with input and output layers
+    model = Model(inputs=input_layer, outputs=output_layer)
+
+    return model
 
 def main(argv):
     args = parse_args(argv)
