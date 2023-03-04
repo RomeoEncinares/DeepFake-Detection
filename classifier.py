@@ -83,6 +83,27 @@ def vision_transformer_classifier():
         optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
     )
     return model
+
+def run_experiment(output_directory, train_data, train_labels, test_data, test_labels):
+    filepath = output_directory
+    checkpoint = keras.callbacks.ModelCheckpoint(
+        filepath, save_weights_only=True, save_best_only=True, verbose=1
+    )
+
+    model = vision_transformer_classifier()
+    history = model.fit(
+        train_data,
+        train_labels,
+        validation_split=0.15,
+        epochs=5,
+        callbacks=[checkpoint],
+    )
+
+    model.load_weights(filepath)
+    _, accuracy = model.evaluate(test_data, test_labels)
+    print(f"Test accuracy: {round(accuracy * 100, 2)}%")
+
+    return model
     
 def main(argv):
     args = parse_args(argv)
