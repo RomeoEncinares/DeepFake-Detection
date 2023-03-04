@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from keras.applications import ResNet50
+from keras.applications import ResNet50, Xception, VGG16, InceptionV3, MobileNet, DenseNet121
 from keras.layers import Dense, GlobalAveragePooling2D, Input
 from keras.models import Model
 from PIL import Image
@@ -18,7 +18,7 @@ def parse_args(argv):
     parser.add_argument('--dataframe', type=str, help='csv dataframe', required=True)
     parser.add_argument('--opticalflow', type=str, help='csv opticalflow dataframe', required=False)
     parser.add_argument('--opticalflowoutput', type=str, help='csv opticalflow dataframe output', required=False)
-    parser.add_argument('--architecture', choices=['resnet50'], help='cnn network architecture', required=True)
+    parser.add_argument('--architecture', choices=['resnet50', 'xception', 'vgg16', 'inceptionv3', 'mobilenet', 'densenet121'], help='cnn network architecture', required=True)
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the features', required=True)
 
@@ -87,6 +87,16 @@ def create_model(architecture, input_shape, num_features):
     # Load pre-trained ResNet50 without the final classification layer
     if architecture == 'resnet50':
         base_model = ResNet50(include_top=False, input_tensor=x, weights='imagenet')
+    elif architecture == 'xception':
+        base_model = Xception(include_top=False, input_tensor=x, weights='imagenet')
+    elif architecture == 'vgg16':
+        base_model = VGG16(include_top=False, input_tensor=x, weights='imagenet')
+    elif architecture == 'inceptionv3':
+        base_model = InceptionV3(include_top=False, input_tensor=x, weights='imagenet')
+    elif architecture == 'mobilenet':
+        base_model = MobileNet(include_top=False, input_tensor=x, weights='imagenet')
+    elif architecture == 'densenet121':
+        base_model = DenseNet121(include_top=False, input_tensor=x, weights='imagenet')
 
     # Freeze the weights of the pre-trained layers
     for layer in base_model.layers:
