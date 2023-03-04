@@ -15,6 +15,7 @@ def parse_args(argv):
     parser.add_argument('--features', type=str, help='features', required=True)
     parser.add_argument('--labels', type=str, help='labels', required=True)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the models', required=True)
+    parser.add_argument('--epochs', type=int, help='number of epochs', required=True)
 
     return parser.parse_args(argv)
 
@@ -84,7 +85,7 @@ def vision_transformer_classifier():
     )
     return model
 
-def run_experiment(output_directory, train_data, train_labels, test_data, test_labels):
+def run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs):
     filepath = output_directory
     checkpoint = keras.callbacks.ModelCheckpoint(
         filepath, save_weights_only=True, save_best_only=True, verbose=1
@@ -95,7 +96,7 @@ def run_experiment(output_directory, train_data, train_labels, test_data, test_l
         train_data,
         train_labels,
         validation_split=0.15,
-        epochs=5,
+        epochs=num_epochs,
         callbacks=[checkpoint],
     )
 
@@ -111,6 +112,7 @@ def main(argv):
     features = args.features
     labels = args.labels
     output_directory = args.outputdirectory
+    num_epochs = args.epochs
     
     features = np.load(features)
     labels = np.load(labels)
@@ -124,7 +126,7 @@ def main(argv):
     print(f"Frame features in test set: {test_data.shape}")
     print(f"Frame labels in test set: {test_labels.shape}")
 
-    trained_model = run_experiment(output_directory, train_data, train_labels, test_data, test_labels)
+    trained_model = run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
