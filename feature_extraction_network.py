@@ -118,6 +118,54 @@ def main(argv):
         df = pd.read_csv(df_directory)
         flow_df = compute_optical_flow(df)
         flow_df.to_csv(df_flow_output_directory + 'flow_df.csv')
+    
+    input_shape = (224, 224)
+
+    model = architecture_resnet50(architecture, input_shape, num_features)
+    model.compile(loss='binary_crossentropy', optimizer='adam')
+
+    # Group the flow_df by video_name
+    grouped_df = flow_df.groupby('video_name')
+
+    # Load motion_residual data and labels from each video
+    motion_residual_data = []
+    labels = []
+    for video_name, group in grouped_df:
+        motion_residuals = []
+        label = group['label'].iloc[0] # get the label of the video
+        current_label = []
+        for i, row in group.iterrows():
+            motion_residual = row['motion_residual']
+            motion_residual = Image.fromarray(motion_residual)
+            motion_residual = motion_residual.resize(input_shape, resample=Image.BICUBIC)
+            motion_residual = np.array(motion_residual)
+            motion_residuals.append(motion_residual)
+            current_label.append(label) # add label for each frame in the video
+        if len(motion_residuals) < 300:
+            # add padding to motion_residuals
+            num_frames_to_pad = 300 - len(motion_residuals)
+            padding = np.zeros((num_frames_to_pad, input_shape[0], input_shape[1]))
+            motion_residuals += padding.tolist()
+            current_label += [label] * num_frames_to_pad
+        elif len(motion_residuals) > 300:
+            motion_residuals = motion_residuals[:300]
+            current_label = current_label[:300] # truncate labels for excess frames
+        labels.append(mode(current_label))
+        motion_residual_data.append(np.array(motion_residuals))
+        # Reset motion_residuals and labels lists for next video
+
+    motion_residual_data = np.array(motion_residual_data)
+
+    # Reshape the motion_residual_data from (None, 300, 224, 224) to (None*30, 224, 224)
+    motion_residual_data_reshaped = motion_residual_data.reshape((-1, 224, 224))
+
+    # Normalize the data to have values between 0 and 1
+    motion_residual_data_reshaped = motion_residual_data_reshaped / 255.0
+
+    print(motion_residual_data_reshaped.shape)
+    
+    # Get feature vectors
+    features = model.predict(motion_residual_data_reshaped) 
 
 if __name__ == '__main__':
     main(sys.argv[1:])
