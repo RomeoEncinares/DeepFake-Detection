@@ -77,7 +77,7 @@ def compute_optical_flow(df):
         })
     return pd.DataFrame(flow_data)
 
-def architecture_resnet50(architecture, input_shape, num_features):
+def create_model(architecture, input_shape, num_features):
     # Input layer
     input_layer = Input(shape=input_shape)
 
@@ -123,7 +123,7 @@ def main(argv):
     
     input_shape = (224, 224)
 
-    model = architecture_resnet50(architecture, input_shape, num_features)
+    model = create_model(architecture, input_shape, num_features)
     model.compile(loss='binary_crossentropy', optimizer='adam')
 
     # Group the flow_df by video_name
