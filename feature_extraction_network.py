@@ -177,9 +177,22 @@ def main(argv):
     print(motion_residual_data_reshaped.shape)
     
     # Get feature vectors
-    features = model.predict(motion_residual_data_reshaped) 
+    features = model.predict(motion_residual_data_reshaped)
 
+    # Reshape the features from (270, 1024) to (9, 30, 1024)
+    features_reshaped = features.reshape((-1, 300, 1024))
+
+    # Print the shapes of the resulting arrays
+    print(features_reshaped.shape)
+
+    # Convert label list to numpy array
+    labels = np.array(labels)
+
+    # Save features
     np.save(output_directory + dataset_name + '_' + architecture + '_' + str(num_features) +'.npy', features)
+
+    # Save Labels
+    np.save(output_directory + dataset_name + '_' + architecture + '_' + str(num_features) + '_' + 'labels' +'.npy', labels)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
