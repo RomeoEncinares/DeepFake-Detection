@@ -169,5 +169,7 @@ def main(argv):
     # Get feature vectors
     features = model.predict(motion_residual_data_reshaped) 
 
+    np.save(output_directory + dataset_name + '_' + architecture + '_' + str(num_features) +'.npy', features)
+
 if __name__ == '__main__':
     main(sys.argv[1:])
