@@ -124,5 +124,7 @@ def main(argv):
     print(f"Frame features in test set: {test_data.shape}")
     print(f"Frame labels in test set: {test_labels.shape}")
 
+    trained_model = run_experiment(output_directory, train_data, train_labels, test_data, test_labels)
+
 if __name__ == '__main__':
     main(sys.argv[1:])
