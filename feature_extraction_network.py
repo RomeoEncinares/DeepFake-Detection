@@ -14,6 +14,7 @@ from PIL import Image
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
+    parser.add_argument('--datasetname', type=str, help='dataset name', required=True)
     parser.add_argument('--dataframe', type=str, help='csv dataframe', required=True)
     parser.add_argument('--opticalflow', type=str, help='csv opticalflow dataframe', required=False)
     parser.add_argument('--opticalflowoutput', type=str, help='csv opticalflow dataframe output', required=False)
@@ -105,6 +106,7 @@ def architecture_resnet50(architecture, input_shape, num_features):
 def main(argv):
     args = parse_args(argv)
 
+    dataset_name = args.datasetname
     df_directory = args.dataframe
     df_flow_directory = args.opticalflow
     df_flow_output_directory = args.opticalflowoutput
