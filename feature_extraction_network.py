@@ -189,7 +189,7 @@ def main(argv):
     labels = np.array(labels)
 
     # Save features
-    np.save(output_directory + dataset_name + '_' + architecture + '_' + str(num_features) +'.npy', features)
+    np.save(output_directory + dataset_name + '_' + architecture + '_' + str(num_features) +'.npy', features_reshaped)
 
     # Save Labels
     np.save(output_directory + dataset_name + '_' + architecture + '_' + str(num_features) + '_' + 'labels' +'.npy', labels)
