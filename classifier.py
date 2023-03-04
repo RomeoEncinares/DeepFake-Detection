@@ -61,6 +61,28 @@ class TransformerEncoder(layers.Layer):
         proj_input = self.layernorm_1(inputs + attention_output)
         proj_output = self.dense_proj(proj_input)
         return self.layernorm_2(proj_input + proj_output)
+
+def vision_transformer_classifier():
+    sequence_length = 30
+    embed_dim = 1024
+    dense_dim = 4
+    num_heads = 1
+    classes = 2
+
+    inputs = keras.Input(shape=(None, None))
+    x = PositionalEmbedding(
+        sequence_length, embed_dim, name="frame_position_embedding"
+    )(inputs)
+    x = TransformerEncoder(embed_dim, dense_dim, num_heads, name="transformer_layer")(x)
+    x = layers.GlobalMaxPooling1D()(x)
+    x = layers.Dropout(0.5)(x)
+    outputs = layers.Dense(classes, activation="softmax")(x)
+    model = keras.Model(inputs, outputs)
+
+    model.compile(
+        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+    )
+    return model
     
 def main(argv):
     args = parse_args(argv)
