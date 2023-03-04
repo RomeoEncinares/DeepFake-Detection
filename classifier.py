@@ -16,6 +16,10 @@ def parse_args(argv):
     parser.add_argument('--labels', type=str, help='labels', required=True)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the models', required=True)
     parser.add_argument('--epochs', type=int, help='number of epochs', required=True)
+    parser.add_argument('--sequencelength', type=int, help='sequence length', required=False, default=30)
+    parser.add_argument('--embeddim', type=int, help='embedded dim', required=False, default=1024)
+    parser.add_argument('--densedim', type=int, help='dense dim', required=False, default=4)
+    parser.add_argument('--numheads', type=int, help='num heads', required=False, default=1)
 
     return parser.parse_args(argv)
 
@@ -63,11 +67,11 @@ class TransformerEncoder(layers.Layer):
         proj_output = self.dense_proj(proj_input)
         return self.layernorm_2(proj_input + proj_output)
 
-def vision_transformer_classifier():
-    sequence_length = 30
-    embed_dim = 1024
-    dense_dim = 4
-    num_heads = 1
+def vision_transformer_classifier(sequence_length, embed_dim, dense_dim, num_heads):
+    sequence_length = sequence_length
+    embed_dim = embed_dim
+    dense_dim = dense_dim
+    num_heads = num_heads
     classes = 2
 
     inputs = keras.Input(shape=(None, None))
@@ -85,13 +89,13 @@ def vision_transformer_classifier():
     )
     return model
 
-def run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs):
+def run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads):
     filepath = output_directory
     checkpoint = keras.callbacks.ModelCheckpoint(
         filepath, save_weights_only=True, save_best_only=True, verbose=1
     )
 
-    model = vision_transformer_classifier()
+    model = vision_transformer_classifier(sequence_length, embed_dim, dense_dim, num_heads)
     history = model.fit(
         train_data,
         train_labels,
@@ -113,7 +117,11 @@ def main(argv):
     labels = args.labels
     output_directory = args.outputdirectory
     num_epochs = args.epochs
-    
+    sequence_length = args.sequencelength
+    embed_dim = args.embeddim
+    dense_dim = args.densedim
+    num_heads = args.numheads
+
     features = np.load(features)
     labels = np.load(labels)
 
@@ -126,7 +134,7 @@ def main(argv):
     print(f"Frame features in test set: {test_data.shape}")
     print(f"Frame labels in test set: {test_labels.shape}")
 
-    trained_model = run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs)
+    trained_model = run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
