@@ -2,10 +2,8 @@ import argparse
 import sys
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from keras import layers
-from keras.layers import Input
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 
