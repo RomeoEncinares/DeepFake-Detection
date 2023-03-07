@@ -89,7 +89,7 @@ def vision_transformer_classifier(sequence_length, embed_dim, dense_dim, num_hea
     )
     return model
 
-def run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads):
+def run_experiment(output_directory, model_name, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads):
     filepath = output_directory
     checkpoint = keras.callbacks.ModelCheckpoint(
         filepath, save_weights_only=True, save_best_only=True, verbose=1
@@ -122,6 +122,9 @@ def main(argv):
     dense_dim = args.densedim
     num_heads = args.numheads
 
+    model_name = features.rsplit('/', 1)[1]
+    model_name = model_name.rsplit('.', 1)[0]
+
     features = np.load(features)
     labels = np.load(labels)
 
@@ -134,7 +137,7 @@ def main(argv):
     print(f"Frame features in test set: {test_data.shape}")
     print(f"Frame labels in test set: {test_labels.shape}")
 
-    trained_model = run_experiment(output_directory, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads)
+    trained_model = run_experiment(output_directory, model_name, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
