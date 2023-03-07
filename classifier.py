@@ -90,7 +90,7 @@ def vision_transformer_classifier(sequence_length, embed_dim, dense_dim, num_hea
     return model
 
 def run_experiment(output_directory, model_name, train_data, train_labels, test_data, test_labels, num_epochs, sequence_length, embed_dim, dense_dim, num_heads):
-    filepath = output_directory
+    filepath = output_directory + model_name + '_epoch_' + str(num_epochs) + '.h5'
     checkpoint = keras.callbacks.ModelCheckpoint(
         filepath, save_weights_only=True, save_best_only=True, verbose=1
     )
