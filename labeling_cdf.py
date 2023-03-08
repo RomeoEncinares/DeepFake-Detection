@@ -30,7 +30,7 @@ def label(frames_list, current_directory, dataframe_dir):
         video_name = frame.rsplit('-', 1)[0]
         frame_name = frame
         file_path = current_directory + frame
-        label = 'FAKE' if current_directory.split('/', 2)[1] == 'Celeb-synthesis' else 'ORIGINAL'
+        label = 'DEEPFAKE' if current_directory.split('/', 2)[2].rstrip('/') == 'Celeb-synthesis' else 'REAL'
         data.append({'video_name': video_name,'frame_name': frame_name, 'file_path': file_path,'label': label})
 
     df = pd.DataFrame(data, columns=['video_name', 'frame_name', 'file_path', 'label'])
