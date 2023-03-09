@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import sys
 
 import pandas as pd
@@ -13,22 +14,15 @@ def parse_args(argv):
 
     return parser.parse_args(argv)
 
-def sort_key_celeb_real(filename):
-    id_, num_ext = filename.split('_')
-    num, ext = num_ext.split('.')
-    num_parts = num.split('-')
-    return (int(id_[2:]), int(num_parts[0]), int(num_parts[1]))
-
-def sort_key_celeb_synthesis(filename):
-    parts = filename.split('_')
-    id_values = [int(part[2:]) for part in parts if part.startswith('id')]
-    num_ext = [part for part in parts if '-' in part][0]
-    num_parts = num_ext.split('-')
-    return tuple(id_values + [int(num_parts[0]), int(num_parts[1].split('.')[0])])
-
-def sort_key_youtube_real(filename):
-    parts = filename.split('-')
-    return (int(parts[0]), int(parts[1].split('.')[0]))
+def sort_key(filename):
+    # Extract the numbers within the parentheses using regular expression
+    match = re.search(r'\((\d+)\)-(\d+)', filename)
+    if match:
+        group1 = int(match.group(1))
+        group2 = int(match.group(2))
+        return group1, group2
+    else:
+        return filename
 
 def label(frames_list, current_directory, dataframe_dir):
     data = []
@@ -36,7 +30,7 @@ def label(frames_list, current_directory, dataframe_dir):
         video_name = frame.rsplit('-', 1)[0]
         frame_name = frame
         file_path = current_directory + frame
-        label = 'FAKE' if current_directory.split('/', 2)[1] == 'Celeb-synthesis' else 'ORIGINAL'
+        label = 'DEEPFAKE' if current_directory.split('/', 2)[2].rstrip('/') == 'Celeb-synthesis' else 'REAL'
         data.append({'video_name': video_name,'frame_name': frame_name, 'file_path': file_path,'label': label})
 
     df = pd.DataFrame(data, columns=['video_name', 'frame_name', 'file_path', 'label'])
@@ -56,17 +50,17 @@ def main(argv):
         current_directory = dataset_dir + i + '/'
         frames_list = os.listdir(dataset_dir + i + '/')
         if i == 'Celeb-real':
-            frames_list = sorted(frames_list, key=sort_key_celeb_real)
+            frames_list = sorted(frames_list, key=sort_key)
             df1 = label(frames_list, current_directory, dataframe_dir)
         elif i == 'Celeb-synthesis':
-            frames_list = sorted(frames_list, key=sort_key_celeb_synthesis)
+            frames_list = sorted(frames_list, key=sort_key)
             df2 = label(frames_list, current_directory, dataframe_dir)
         elif i == 'Youtube-real':
-            frames_list = sorted(frames_list, key=sort_key_youtube_real)
+            frames_list = sorted(frames_list, key=sort_key)
             df3 = label(frames_list, current_directory, dataframe_dir)
 
     df_combined = pd.concat([df1, df2, df3])
-
+    
     df_combined.label = le.fit_transform(df_combined.label)
     df_combined.to_csv(dataframe_dir + 'df.csv')
 
