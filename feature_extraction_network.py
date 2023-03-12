@@ -18,7 +18,6 @@ import gzip
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--datasetname', type=str, help='dataset name', required=True)
-    parser.add_argument('--opticalflowoutput', type=str, help='csv opticalflow dataframe output', required=False)
     parser.add_argument('--architecture', choices=['resnet50', 'xception', 'vgg16', 'inceptionv3', 'mobilenet', 'densenet121'], help='cnn network architecture', required=True)
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the features', required=True)
@@ -102,7 +101,7 @@ def main(argv):
 
     # Convert the data to a DataFrame
     flow_df = pd.DataFrame(data, columns=['index', 'video_name', 'frame_name', 'motion_residual', 'label'])
-    print(flow_df.head())
+    # print(flow_df.head())
 
     # Close the database connection
     mydb.close()
