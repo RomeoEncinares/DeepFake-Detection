@@ -119,6 +119,7 @@ def main(argv):
         current_label = []
         for i, row in group.iterrows():
             motion_residual = row['motion_residual']
+            motion_residual = np.frombuffer(motion_residual, dtype=np.uint8).reshape((224, 224))
             motion_residual = Image.fromarray(motion_residual)
             motion_residual = motion_residual.resize(input_shape, resample=Image.BICUBIC)
             motion_residual = np.array(motion_residual)
