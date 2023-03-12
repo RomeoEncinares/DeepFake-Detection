@@ -70,9 +70,9 @@ def compute_optical_flow(df, mydb, database_name, table_name, start_index, end_i
 
 def insert_motion_residual(mydb, database_name, table_name, insert_values):
     insert_query = """
-    INSERT INTO `{}`.`{}` (video_name, frame_name, motion_residual, label)
+    INSERT INTO `{}` (video_name, frame_name, motion_residual, label)
     VALUES (%s, %s, %s, %s)
-    """.format(database_name, table_name)
+    """.format(table_name)
 
     cursor = mydb.cursor()
     cursor.execute(insert_query, insert_values)
