@@ -13,6 +13,7 @@ from sqlalchemy import create_engine
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--datasetRoot', type=str, help='Dataset root directory', required=True)
+    parser.add_argument('--tablename', type=str, help='table name', required=True)
 
     return parser.parse_args(argv)
 
@@ -43,6 +44,7 @@ def main(argv):
     args = parse_args(argv)
 
     dataset_dir = args.datasetRoot
+    table_name = args.tablename
     dataset_dir_sub_root = ['Celeb-real', 'Celeb-synthesis', 'Youtube-real']
 
     le = LabelEncoder()
@@ -77,7 +79,7 @@ def main(argv):
     cnx = mysql.connector.connect(user=user, password=password, host=host, database=database)
     cursor = cnx.cursor()
 
-    df_combined.to_sql(name='celeb-df-v2-raw', con=engine, if_exists='append', index=False)
+    df_combined.to_sql(name=table_name, con=engine, if_exists='append', index=False)
 
     # Close the database connection
     cursor.close()
