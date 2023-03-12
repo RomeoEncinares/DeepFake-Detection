@@ -63,6 +63,16 @@ def compute_optical_flow(start_index, end_index):
 
     return pd.DataFrame(flow_data)
 
+def insert_motion_residual(mydb, insert_values):
+    insert_query = """
+    INSERT INTO `deepfake-video-detection`.`celeb-df-v2-motion-residual` (video_name, frame_name, motion_residual, label)
+    VALUES (%s, %s, %s, %s)
+    """
+    cursor = mydb.cursor()
+    cursor.execute(insert_query, insert_values)
+    mydb.commit()
+
+
 def main(argv):
     args = parse_args(argv)
 
