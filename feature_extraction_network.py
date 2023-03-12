@@ -15,6 +15,8 @@ import mysql.connector
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--datasetname', type=str, help='dataset name', required=True)
+    parser.add_argument('--databasename', type=str, help='database name', required=True)
+    parser.add_argument('--tablename', type=str, help='table name', required=True)
     parser.add_argument('--architecture', choices=['resnet50', 'xception', 'vgg16', 'inceptionv3', 'mobilenet', 'densenet121'], help='cnn network architecture', required=True)
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the features', required=True)
@@ -61,6 +63,8 @@ def main(argv):
     args = parse_args(argv)
 
     dataset_name = args.datasetname
+    database_name = args.databasename
+    table_name = args.tablename
     architecture = args.architecture
     num_features = args.features
     output_directory = args.outputdirectory
@@ -90,7 +94,7 @@ def main(argv):
     mycursor = mydb.cursor()
 
     # Execute SQL query to retrieve data
-    sql = "SELECT * FROM `deepfake-video-detection`.`celeb-df-v2-motion-residual`"
+    sql = "SELECT * FROM `{}`.`{}`".format(database_name, table_name)
     mycursor.execute(sql)
 
     # Fetch the data as a list of tuples
