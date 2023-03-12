@@ -69,6 +69,22 @@ def main(argv):
     num_features = args.features
     output_directory = args.outputdirectory
 
+    # Read the MySQL connection details from config.ini
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    user = config['mysql']['user']
+    password = config['mysql']['password']
+    host = config['mysql']['host']
+    database = config['mysql']['database']
+
+    #    # Connect to MySQL database
+    mydb = mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+
     input_shape = (224, 224)
 
     model = create_model(architecture, input_shape, num_features)
