@@ -73,5 +73,15 @@ def main(argv):
     # Store credentials
     engine = create_engine(f'mysql://{user}:{password}@{host}/{database}')
 
+    # Connect to MySQL database
+    cnx = mysql.connector.connect(user=user, password=password, host=host, database=database)
+    cursor = cnx.cursor()
+
+    df_combined.to_sql(name='celeb-df-v2-raw', con=engine, if_exists='append', index=False)
+
+    # Close the database connection
+    cursor.close()
+    cnx.close()
+
 if __name__ == '__main__':
     main(sys.argv[1:])
