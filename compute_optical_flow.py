@@ -3,7 +3,9 @@ import configparser
 import sys
 
 import cv2
+import mysql.connector
 import pandas as pd
+
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
@@ -67,6 +69,21 @@ def main(argv):
     start_index = args.start
     end_index = args.end
 
+    # Read the MySQL connection details from config.ini
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    user = config['mysql']['user']
+    password = config['mysql']['password']
+    host = config['mysql']['host']
+    database = config['mysql']['database']
+
+    # Connect to MySQL database
+    mydb = mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
 
 if __name__ == '__main__':
     main(sys.argv[1:])
