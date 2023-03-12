@@ -85,5 +85,19 @@ def main(argv):
         database=database
     )
 
+    # Set up cursor to execute SQL queries
+    mycursor = mydb.cursor()
+
+    # Execute SQL query to retrieve data
+    sql = "SELECT * FROM `deepfake-video-detection`.`celeb-df-v2-raw`"
+    mycursor.execute(sql)
+
+    # Fetch the data as a list of tuples
+    data = mycursor.fetchall()
+
+    # Convert the data to a DataFrame
+    df = pd.DataFrame(data, columns=['index', 'video_name', 'frame_name', 'file_path', 'label'])
+    # print(df.head())
+
 if __name__ == '__main__':
     main(sys.argv[1:])
