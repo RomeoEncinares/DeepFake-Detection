@@ -5,6 +5,10 @@ import sys
 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import configparser
+import mysql.connector
+from sqlalchemy import create_engine
+
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
@@ -56,6 +60,18 @@ def main(argv):
             df3 = label(frames_list, current_directory)
 
     df_combined = pd.concat([df1, df2, df3])
+    df_combined.label = le.fit_transform(df_combined.label)
+
+    # Read the MySQL connection details from config.ini
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    user = config['mysql']['user']
+    password = config['mysql']['password']
+    host = config['mysql']['host']
+    database = config['mysql']['database']
+    
+    # Store credentials
+    engine = create_engine(f'mysql://{user}:{password}@{host}/{database}')
 
 if __name__ == '__main__':
     main(sys.argv[1:])
