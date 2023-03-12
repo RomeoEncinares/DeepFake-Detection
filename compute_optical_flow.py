@@ -68,7 +68,7 @@ def compute_optical_flow(df, mydb, database_name, table_name, start_index, end_i
         insert_values = (row['video_name'], row['frame_name'], diff_bytes, int(row['label']))
         insert_motion_residual(mydb, database_name, table_name, insert_values)
 
-def insert_motion_residual(mydb, database_name, table_name, insert_values):
+def insert_motion_residual(mydb, table_name, insert_values):
     insert_query = """
     INSERT INTO `{}` (video_name, frame_name, motion_residual, label)
     VALUES (%s, %s, %s, %s)
@@ -81,7 +81,6 @@ def insert_motion_residual(mydb, database_name, table_name, insert_values):
 def main(argv):
     args = parse_args(argv)
 
-    database_name = args.databasename
     raw_table = args.tablerawname
     table_name = args.tablename
     start_index = args.start
@@ -118,7 +117,7 @@ def main(argv):
     # print(df.head())
 
     # Compute optical flow
-    compute_optical_flow(df, mydb, database_name, table_name, start_index, end_index)
+    compute_optical_flow(df, mydb, table_name, start_index, end_index)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
