@@ -10,6 +10,7 @@ import pandas as pd
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--databasename', type=str, help='database name', required=True)
+    parser.add_argument('--tablerawname', type=str, help='raw table name', required=True)
     parser.add_argument('--tablename', type=str, help='table name', required=True)
     parser.add_argument('--start', type=int, help='start at index', required=False)
     parser.add_argument('--end', type=int, help='end at index', required=False)
@@ -81,6 +82,7 @@ def main(argv):
     args = parse_args(argv)
 
     database_name = args.databasename
+    raw_table = args.tablerawname
     table_name = args.tablename
     start_index = args.start
     end_index = args.end
@@ -105,7 +107,7 @@ def main(argv):
     mycursor = mydb.cursor()
 
     # Execute SQL query to retrieve data
-    sql = "SELECT * FROM `deepfake-video-detection`.`celeb-df-v2-raw`"
+    sql = "SELECT * FROM `{}`".format(raw_table)
     mycursor.execute(sql)
 
     # Fetch the data as a list of tuples
