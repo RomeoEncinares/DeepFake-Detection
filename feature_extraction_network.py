@@ -150,8 +150,8 @@ def main(argv):
     # Get feature vectors
     features = model.predict(motion_residual_data_reshaped)
 
-    # Reshape the features from (270, 1024) to (9, 30, 1024)
-    features_reshaped = features.reshape((-1, 300, 1024))
+    # Reshape the features from (270, 1024) to (9, 30, features)
+    features_reshaped = features.reshape((-1, 300, num_features))
 
     # Print the shapes of the resulting arrays
     print(features_reshaped.shape)
