@@ -2,7 +2,6 @@ import argparse
 import sys
 from statistics import mode
 
-import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -12,8 +11,6 @@ from keras.models import Model
 from PIL import Image
 import configparser
 import mysql.connector
-from sqlalchemy import create_engine
-import gzip
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
