@@ -9,12 +9,14 @@ import pandas as pd
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
+    parser.add_argument('--databasename', type=str, help='database name', required=True)
+    parser.add_argument('--tablename', type=str, help='table name', required=True)
     parser.add_argument('--start', type=int, help='start at index', required=False)
     parser.add_argument('--end', type=int, help='end at index', required=False)
     
     return parser.parse_args(argv)
 
-def compute_optical_flow(df, mydb, start_index, end_index):
+def compute_optical_flow(df, mydb, database_name, table_name, start_index, end_index):
     flow_data = []
     for i in range(start_index, end_index):
         row = df.iloc[i]
@@ -63,13 +65,14 @@ def compute_optical_flow(df, mydb, start_index, end_index):
 
         diff_bytes = bytearray(memoryview(diff.tobytes()))
         insert_values = (row['video_name'], row['frame_name'], diff_bytes, int(row['label']))
-        insert_motion_residual(mydb, insert_values)
+        insert_motion_residual(mydb, database_name, table_name, insert_values)
 
-def insert_motion_residual(mydb, insert_values):
+def insert_motion_residual(mydb, database_name, table_name, insert_values):
     insert_query = """
-    INSERT INTO `deepfake-video-detection`.`celeb-df-v2-motion-residual` (video_name, frame_name, motion_residual, label)
+    INSERT INTO `{}`.`{}` (video_name, frame_name, motion_residual, label)
     VALUES (%s, %s, %s, %s)
-    """
+    """.format(database_name, table_name)
+
     cursor = mydb.cursor()
     cursor.execute(insert_query, insert_values)
     mydb.commit()
@@ -77,6 +80,8 @@ def insert_motion_residual(mydb, insert_values):
 def main(argv):
     args = parse_args(argv)
 
+    database_name = args.databasename
+    table_name = args.tablename
     start_index = args.start
     end_index = args.end
 
@@ -111,7 +116,7 @@ def main(argv):
     # print(df.head())
 
     # Compute optical flow
-    compute_optical_flow(df, mydb, start_index, end_index)
+    compute_optical_flow(df, mydb, database_name, table_name, start_index, end_index)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
