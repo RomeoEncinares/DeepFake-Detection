@@ -14,7 +14,7 @@ def parse_args(argv):
     
     return parser.parse_args(argv)
 
-def compute_optical_flow(start_index, end_index):
+def compute_optical_flow(df, mydb, start_index, end_index):
     flow_data = []
     for i in range(start_index, end_index):
         row = df.iloc[i]
@@ -61,7 +61,9 @@ def compute_optical_flow(start_index, end_index):
         # diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
         # diff_rgb = cv2.merge((diff_gray, diff_gray, diff_gray))
 
-    return pd.DataFrame(flow_data)
+        diff_bytes = bytearray(memoryview(diff.tobytes()))
+        insert_values = (row['video_name'], row['frame_name'], diff_bytes, int(row['label']))
+        insert_motion_residual(mydb, insert_values)
 
 def insert_motion_residual(mydb, insert_values):
     insert_query = """
@@ -71,7 +73,6 @@ def insert_motion_residual(mydb, insert_values):
     cursor = mydb.cursor()
     cursor.execute(insert_query, insert_values)
     mydb.commit()
-
 
 def main(argv):
     args = parse_args(argv)
@@ -108,6 +109,9 @@ def main(argv):
     # Convert the data to a DataFrame
     df = pd.DataFrame(data, columns=['index', 'video_name', 'frame_name', 'file_path', 'label'])
     # print(df.head())
+
+    # Compute optical flow
+    compute_optical_flow(df, mydb, start_index, end_index)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
