@@ -15,7 +15,6 @@ import mysql.connector
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--datasetname', type=str, help='dataset name', required=True)
-    parser.add_argument('--databasename', type=str, help='database name', required=True)
     parser.add_argument('--tablename', type=str, help='table name', required=True)
     parser.add_argument('--architecture', choices=['resnet50', 'xception', 'vgg16', 'inceptionv3', 'mobilenet', 'densenet121'], help='cnn network architecture', required=True)
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
@@ -63,7 +62,6 @@ def main(argv):
     args = parse_args(argv)
 
     dataset_name = args.datasetname
-    database_name = args.databasename
     table_name = args.tablename
     architecture = args.architecture
     num_features = args.features
@@ -94,7 +92,7 @@ def main(argv):
     mycursor = mydb.cursor()
 
     # Execute SQL query to retrieve data
-    sql = "SELECT * FROM `{}`.`{}`".format(database_name, table_name)
+    sql = "SELECT * FROM `{}`".format(table_name)
     mycursor.execute(sql)
 
     # Fetch the data as a list of tuples
