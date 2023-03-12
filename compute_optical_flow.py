@@ -1,21 +1,18 @@
 import argparse
+import configparser
 import sys
 
 import cv2
 import pandas as pd
 
-
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataframe', type=str, help='csv dataframe', required=True)
-    parser.add_argument('--opticalflow', type=str, help='csv opticalflow dataframe', required=False)
-    parser.add_argument('--opticalflowoutput', type=str, help='csv opticalflow dataframe output', required=False)
     parser.add_argument('--start', type=int, help='start at index', required=False)
     parser.add_argument('--end', type=int, help='end at index', required=False)
     
     return parser.parse_args(argv)
 
-def compute_optical_flow(df, start_index, end_index):
+def compute_optical_flow(start_index, end_index):
     flow_data = []
     for i in range(start_index, end_index):
         row = df.iloc[i]
@@ -62,40 +59,13 @@ def compute_optical_flow(df, start_index, end_index):
         # diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
         # diff_rgb = cv2.merge((diff_gray, diff_gray, diff_gray))
 
-        # Store the optical flow data for the current pair of frames
-        flow_data.append({
-            'video_name': row['video_name'],
-            'frame_name': row['frame_name'],
-            'motion_residual': diff,
-            'label': row['label'],
-        })
     return pd.DataFrame(flow_data)
 
 def main(argv):
     args = parse_args(argv)
 
-    df_directory = args.dataframe
-    df_flow_directory = args.opticalflow
-    df_flow_output_directory = args.opticalflowoutput
     start_index = args.start
     end_index = args.end
-
-    df = pd.read_csv(df_directory)
-    
-    if df_flow_directory != None:
-        # Read the existing data from file
-        flow_df = pd.read_csv(df_flow_directory, index_col=0)
-        
-        # Compute the new flow data and append it to the existing data
-        new_flow_df = compute_optical_flow(df, start_index, end_index)
-        new_flow_df.index = range(flow_df.index.max()+1, flow_df.index.max()+1+len(new_flow_df))
-        flow_df = pd.concat([flow_df, new_flow_df], ignore_index=True)
-        
-        # Write the updated DataFrame to file
-        flow_df.to_csv(df_flow_output_directory + 'flow_df.csv', index=True)
-    else:
-        flow_df = compute_optical_flow(df, start_index, end_index)
-        flow_df.to_csv(df_flow_output_directory + 'flow_df.csv', index=True)
 
 
 if __name__ == '__main__':
