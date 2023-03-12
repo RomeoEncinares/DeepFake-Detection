@@ -90,6 +90,23 @@ def main(argv):
     model = create_model(architecture, input_shape, num_features)
     model.compile(loss='binary_crossentropy', optimizer='adam')
 
+    # Set up cursor to execute SQL queries
+    mycursor = mydb.cursor()
+
+    # Execute SQL query to retrieve data
+    sql = "SELECT * FROM `deepfake-video-detection`.`celeb-df-v2-motion-residual`"
+    mycursor.execute(sql)
+
+    # Fetch the data as a list of tuples
+    data = mycursor.fetchall()
+
+    # Convert the data to a DataFrame
+    flow_df = pd.DataFrame(data, columns=['index', 'video_name', 'frame_name', 'motion_residual', 'label'])
+    print(flow_df.head())
+
+    # Close the database connection
+    mydb.close()
+
     # Group the flow_df by video_name
     grouped_df = flow_df.groupby('video_name')
 
