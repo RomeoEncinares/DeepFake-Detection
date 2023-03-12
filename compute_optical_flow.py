@@ -25,7 +25,7 @@ def compute_optical_flow(df, mydb, database_name, table_name, start_index, end_i
         if next_row is not None and row['video_name'] != next_row['video_name']:
             continue
 
-        print('{}: {}'.format(next_row.video_name, next_row.frame_name))
+        print('{}: {}'.format(row.video_name, row.frame_name))
 
         # Read the current frame and the next frame
         frame1 = cv2.imread(row['file_path'])
