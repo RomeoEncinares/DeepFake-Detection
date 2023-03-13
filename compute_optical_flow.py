@@ -10,6 +10,7 @@ import pandas as pd
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--databasename', type=str, help='database name', required=True)
+    parser.add_argument('--tablerawname', type=str, help='raw table name', required=True)
     parser.add_argument('--tablename', type=str, help='table name', required=True)
     parser.add_argument('--start', type=int, help='start at index', required=False)
     parser.add_argument('--end', type=int, help='end at index', required=False)
