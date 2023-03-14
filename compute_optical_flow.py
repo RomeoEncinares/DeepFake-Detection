@@ -17,7 +17,7 @@ def parse_args(argv):
     
     return parser.parse_args(argv)
 
-def compute_optical_flow(df, mydb, database_name, table_name, start_index, end_index):
+def compute_optical_flow(df, mydb, table_name, start_index, end_index):
     flow_data = []
     for i in range(start_index, end_index):
         row = df.iloc[i]
@@ -66,7 +66,7 @@ def compute_optical_flow(df, mydb, database_name, table_name, start_index, end_i
 
         diff_bytes = bytearray(memoryview(diff.tobytes()))
         insert_values = (row['video_name'], row['frame_name'], diff_bytes, int(row['label']))
-        insert_motion_residual(mydb, database_name, table_name, insert_values)
+        insert_motion_residual(mydb, table_name, insert_values)
 
 def insert_motion_residual(mydb, table_name, insert_values):
     insert_query = """
