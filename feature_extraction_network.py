@@ -2,7 +2,6 @@ import argparse
 import sys
 from statistics import mode
 
-import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -10,74 +9,18 @@ from keras.applications import ResNet50, Xception, VGG16, InceptionV3, MobileNet
 from keras.layers import Dense, GlobalAveragePooling2D, Input
 from keras.models import Model
 from PIL import Image
-
+import configparser
+import mysql.connector
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--datasetname', type=str, help='dataset name', required=True)
-    parser.add_argument('--dataframe', type=str, help='csv dataframe', required=True)
-    parser.add_argument('--opticalflow', type=str, help='csv opticalflow dataframe', required=False)
-    parser.add_argument('--opticalflowoutput', type=str, help='csv opticalflow dataframe output', required=False)
+    parser.add_argument('--tablename', type=str, help='table name', required=True)
     parser.add_argument('--architecture', choices=['resnet50', 'xception', 'vgg16', 'inceptionv3', 'mobilenet', 'densenet121'], help='cnn network architecture', required=True)
     parser.add_argument('--features', type=int, help='number of features', required=True, default=1024)
     parser.add_argument('--outputdirectory', type=str, help='output directory to store the features', required=True)
 
     return parser.parse_args(argv)
-
-def compute_optical_flow(df):
-    flow_data = []
-    for i, row in df.iterrows():
-        # Check if the next frame is from the same video
-        next_row = df.iloc[i + 1] if i + 1 < len(df) else None
-        if next_row is not None and row['video_name'] != next_row['video_name']:
-            continue
-
-        print('{}: {}'.format(next_row.video_name, next_row.frame_name))
-
-        # Read the current frame and the next frame
-        frame1 = cv2.imread(row['file_path'])
-        if next_row is not None:
-            frame2 = cv2.imread(next_row['file_path'])
-        else:
-            # If the next frame is from a different video, skip computing optical flow
-            continue
-
-        frame1 = cv2.resize(frame1, (224, 224), interpolation=cv2.INTER_LINEAR)
-        frame2 = cv2.resize(frame2, (224, 224), interpolation=cv2.INTER_LINEAR)
-
-        # Convert the frames to grayscale
-        gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-        gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
-
-        # Compute the optical flow between the frames
-        flow = cv2.calcOpticalFlowFarneback(gray1, gray2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
-
-        # Convert flow vectors to polar coordinates
-        magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
-
-        # Threshold the magnitude to create a binary mask of moving regions
-        magnitude_threshold = 4
-        magnitude = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-        ret, mask = cv2.threshold(magnitude, magnitude_threshold, 1, cv2.THRESH_BINARY)
-
-        # Apply the mask to the second frame to highlight the moving regions
-        frame2_masked = cv2.bitwise_and(frame2, frame2, mask=mask)
-
-        # Subtract the masked second frame from the first frame to create a difference image
-        diff = cv2.absdiff(frame1, frame2_masked)
-        # Convert difference image to colored
-        diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-        # diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-        # diff_rgb = cv2.merge((diff_gray, diff_gray, diff_gray))
-
-        # Store the optical flow data for the current pair of frames
-        flow_data.append({
-            'video_name': row['video_name'],
-            'frame_name': row['frame_name'],
-            'motion_residual': diff,
-            'label': row['label'],
-        })
-    return pd.DataFrame(flow_data)
 
 def create_model(architecture, input_shape, num_features):
     # Input layer
@@ -119,24 +62,48 @@ def main(argv):
     args = parse_args(argv)
 
     dataset_name = args.datasetname
-    df_directory = args.dataframe
-    df_flow_directory = args.opticalflow
-    df_flow_output_directory = args.opticalflowoutput
+    table_name = args.tablename
     architecture = args.architecture
     num_features = args.features
     output_directory = args.outputdirectory
 
-    if df_flow_directory != None:
-        flow_df = pd.read_csv(df_flow_directory)
-    else:
-        df = pd.read_csv(df_directory)
-        flow_df = compute_optical_flow(df)
-        flow_df.to_csv(df_flow_output_directory + 'flow_df.csv')
-    
+    # Read the MySQL connection details from config.ini
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    user = config['mysql']['user']
+    password = config['mysql']['password']
+    host = config['mysql']['host']
+    database = config['mysql']['database']
+
+    #    # Connect to MySQL database
+    mydb = mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+
     input_shape = (224, 224)
 
     model = create_model(architecture, input_shape, num_features)
     model.compile(loss='binary_crossentropy', optimizer='adam')
+
+    # Set up cursor to execute SQL queries
+    mycursor = mydb.cursor()
+
+    # Execute SQL query to retrieve data
+    sql = "SELECT * FROM `{}`".format(table_name)
+    mycursor.execute(sql)
+
+    # Fetch the data as a list of tuples
+    data = mycursor.fetchall()
+
+    # Convert the data to a DataFrame
+    flow_df = pd.DataFrame(data, columns=['index', 'video_name', 'frame_name', 'motion_residual', 'label'])
+    # print(flow_df.head())
+
+    # Close the database connection
+    mydb.close()
 
     # Group the flow_df by video_name
     grouped_df = flow_df.groupby('video_name')
@@ -150,6 +117,7 @@ def main(argv):
         current_label = []
         for i, row in group.iterrows():
             motion_residual = row['motion_residual']
+            motion_residual = np.frombuffer(motion_residual, dtype=np.uint8).reshape((224, 224))
             motion_residual = Image.fromarray(motion_residual)
             motion_residual = motion_residual.resize(input_shape, resample=Image.BICUBIC)
             motion_residual = np.array(motion_residual)
@@ -181,8 +149,8 @@ def main(argv):
     # Get feature vectors
     features = model.predict(motion_residual_data_reshaped)
 
-    # Reshape the features from (270, 1024) to (9, 30, 1024)
-    features_reshaped = features.reshape((-1, 300, 1024))
+    # Reshape the features from (270, 1024) to (9, 30, features)
+    features_reshaped = features.reshape((-1, 300, num_features))
 
     # Print the shapes of the resulting arrays
     print(features_reshaped.shape)
