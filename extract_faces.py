@@ -49,14 +49,27 @@ def main(argv):
 
     for video in range(start_video_index, video_list_count):
         print(video_list[video])
-        getFrame(source_dir, target_dir, frame_rate, video_list[video])
+        getFrame(source_dir, target_dir, video_list[video], frame_rate)
 
-def getFrame(source_dir, target_dir, frame_count, video):
+
+def getFrame(source_dir, target_dir, video, num_frames=300):
     video_path = os.path.join(source_dir, video)
     vidcap = cv2.VideoCapture(video_path)
 
+    # calculate the total number of frames in the video
+    total_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    # calculate the duration of the video in seconds
+    duration_sec = total_frames / vidcap.get(cv2.CAP_PROP_FPS)
+
+    # calculate the desired frame rate
+    frame_rate = num_frames / duration_sec
+
+    # calculate the interval between frames to extract
+    interval = int(total_frames // num_frames)
+
     def saveFrame(count, target_dir):
-        vidcap.set(cv2.CAP_PROP_POS_FRAMES, count-1)
+        vidcap.set(cv2.CAP_PROP_POS_FRAMES, (count-1) * interval)
         hasFrames, image = vidcap.read()
         if hasFrames:
             try:
@@ -65,7 +78,7 @@ def getFrame(source_dir, target_dir, frame_count, video):
                 pass
         return hasFrames
 
-    for count in range(1, frame_count+1):
+    for count in range(1, num_frames+1):
         success = saveFrame(count, target_dir)
         if not success:
             break
